@@ -22,6 +22,8 @@ let isPull = true;
 
 let score = 0;
 
+let isMoving = false;
+
 
 let colors = {
     2 : "#EEE4DA",
@@ -39,7 +41,7 @@ let colors = {
 
 function setup() {
     // put setup code here
-    let cnvs = createCanvas(800,windowHeight);
+    let cnvs = createCanvas(800,950);
     cnvs.style("display", "block");
     cnvs.style("margin", "0px auto");
     background(0);
@@ -134,18 +136,18 @@ function mousePressed(){
 }
 
 function keyPressed() {
-    if(keyCode === LEFT_ARROW){
+    if(keyCode === LEFT_ARROW && isMoving == false){
         moveLeft();
         watchTable();
-    } else if(keyCode === RIGHT_ARROW){
+    } else if(keyCode === RIGHT_ARROW && isMoving == false){
         moveRight();
         watchTable();
         
         //console.log(JSON.stringify(table));
-    } else if(keyCode === UP_ARROW){
+    } else if(keyCode === UP_ARROW && isMoving == false){
         moveUp();
         watchTable();
-    } else if(keyCode === DOWN_ARROW){
+    } else if(keyCode === DOWN_ARROW && isMoving == false){
         moveDown();
         watchTable();
     }
@@ -250,6 +252,7 @@ function playAnimation(animes){
         
     
     } else {
+        isMoving = false;
         isPull = true;
     }
     
@@ -302,9 +305,11 @@ function moveRight(){
             }
         }
     }
+    isMoving = true;
     if(isPull){
         pullRight();
     }
+    
 }
 
 function moveLeft(){
@@ -340,6 +345,7 @@ function moveLeft(){
             }
         }
     }
+    isMoving = true;
     if(isPull){
         pullLeft();
     }
@@ -379,6 +385,7 @@ function moveUp(){
             }
         }
     }
+    isMoving = true;
     if(isPull){
         pullUp();
     }
@@ -418,6 +425,7 @@ function moveDown(){
             }
         }
     }
+    isMoving = true;
     if(isPull){
         pullDown();
     }
@@ -576,12 +584,22 @@ function findIndexNum(direkt){
 
 
 function getRandomNum(){
-    let rand = int(random(5));
+    //let rand = int(random(5));
+    let rand2 = random(101);
+    
+    if(rand2 < 90){
+        return 2;
+    } else {
+        return 4;
+    }
+    
+    /*
     if(rand == 2 || rand == 4){
         return rand;
     } else {
         return getRandomNum();
     }
+    */
 }
 
 function createTable(rowNum, colNum){
