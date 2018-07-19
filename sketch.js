@@ -39,7 +39,9 @@ let colors = {
 
 function setup() {
     // put setup code here
-    createCanvas(800,960);
+    let cnvs = createCanvas(800,950);
+    cnvs.style("display", "block");
+    cnvs.style("margin", "0px auto");
     background(0);
     elementCalculate();
     createTable(rowNum, colNum); 
