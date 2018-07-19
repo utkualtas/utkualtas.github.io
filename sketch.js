@@ -1,6 +1,7 @@
 let rowNum = 4;
 let colNum = 4;
 let table = [];
+let oldTable = [];
 let isFirstSet = true;
 
 let width = 600;
@@ -137,17 +138,21 @@ function mousePressed(){
 
 function keyPressed() {
     if(keyCode === LEFT_ARROW && isMoving == false){
+        oldTable = table;
         moveLeft();
         watchTable();
     } else if(keyCode === RIGHT_ARROW && isMoving == false){
+        oldTable = table;
         moveRight();
         watchTable();
         
         //console.log(JSON.stringify(table));
     } else if(keyCode === UP_ARROW && isMoving == false){
+        oldTable = table;
         moveUp();
         watchTable();
     } else if(keyCode === DOWN_ARROW && isMoving == false){
+        oldTable = table;
         moveDown();
         watchTable();
     }
@@ -156,6 +161,7 @@ function keyPressed() {
 function playAnimation(animes){
     let isDone = true;
     let aName = null;
+    oldTable = [];
     if(animes.length !=0){
         for(let i=0; i<animes.length; i++){
             if(animes[i]["isDone"] == false){
@@ -254,6 +260,7 @@ function playAnimation(animes){
     } else {
         isMoving = false;
         isPull = true;
+        
     }
     
 }
@@ -459,7 +466,7 @@ function pullRight(){
                         pullAnimate.push(obj);
                         */
                         
-                        
+                        oldTable = [];
                         
                         count++;
                         
@@ -468,7 +475,9 @@ function pullRight(){
             }
         }
     }
-    findIndexNum(null);
+    if(table != oldTable){
+        findIndexNum(null);
+    }
 }
 
 function pullLeft(){
@@ -497,7 +506,7 @@ function pullLeft(){
                             
                            */ 
                         
-                        
+                        oldTable = [];
                         
                         count--;
                     }
@@ -505,7 +514,9 @@ function pullLeft(){
             }
         }
     }
-    findIndexNum(null);
+    if(table != oldTable){
+        findIndexNum(null);
+    }
 }
 
 function pullUp(){
@@ -518,13 +529,19 @@ function pullUp(){
                     if(table[k][i]["val"] == null){
                         table[k][i]["val"] = num;
                         table[j+count][i]["val"] = null;
+                        
+                        
+                        oldTable = [];
+                        
                         count--;
                     }
                 }
             }
         }
     }
-    findIndexNum(null);
+    if(table != oldTable){
+        findIndexNum(null);
+    }
 }
 
 function pullDown(){
@@ -537,13 +554,18 @@ function pullDown(){
                     if(table[k][i]["val"] == null){
                         table[k][i]["val"] = num;
                         table[j+count][i]["val"] = null;
+                        
+                        oldTable = [];
+                        
                         count++;
                     }
                 }
             }
         }
     }
-    findIndexNum(null);
+    if(table != oldTable){
+        findIndexNum(null);
+    }
 }
 
 
