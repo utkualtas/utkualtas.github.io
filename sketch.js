@@ -39,7 +39,7 @@ let colors = {
 
 function setup() {
     // put setup code here
-    let cnvs = createCanvas(800,950);
+    let cnvs = createCanvas(800,windowHeight);
     cnvs.style("display", "block");
     cnvs.style("margin", "0px auto");
     background(0);
