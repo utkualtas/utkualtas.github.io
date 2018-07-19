@@ -37,7 +37,8 @@ let colors = {
     256 : "#EDCC61",
     512 : "#EDC850",
     1024 : "#EDD150",
-    2048 : "#EDF650"
+    2048 : "#EDF650",
+    default : "#121212"
 };
 
 function setup() {
@@ -92,7 +93,11 @@ function draw() {
         for(let j=1; j<=colNum; j++){
             if(table[i-1][j-1]["val"] != null){
                 //fill(table[i-1][j-1].toString());
-                fill(colors[table[i-1][j-1]["val"]]);
+                if(colors[table[i-1][j-1]["val"]] == undefined){
+                    fill(colors["default"]);
+                } else {
+                    fill(colors[table[i-1][j-1]["val"].toString()]);
+                }
                 noStroke();
                 rect(table[i-1][j-1]["x"], table[i-1][j-1]["y"], elementXlenght, elementXlenght);
                 textSize(52);
@@ -116,6 +121,7 @@ function draw() {
 
 
 function watchTable(){
+    //This function just for debug and see table on the console
     console.clear();
         for(let i=0; i<4; i++){
             //for(let j=0; j<table[i].length; j++){
