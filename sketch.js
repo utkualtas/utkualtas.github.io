@@ -2,6 +2,7 @@ let rowNum = 4;
 let colNum = 4;
 let table = [];
 let oldTable = [];
+let tempTable = [];
 let isFirstSet = true;
 
 let width = 600;
@@ -17,6 +18,7 @@ let elmXlenght = 0.0;
 let elmYlenght = 0.0;
 let elementXlenght = 0.0;
 
+let animeSpeed = 10.0;
 let makeAnimate = [];
 let pullAninamte = [];
 let isPull = true;
@@ -48,8 +50,9 @@ function setup() {
     cnvs.style("margin", "0px auto");
     background(0);
     elementCalculate();
-    createTable(rowNum, colNum); 
+    table = createTable(rowNum, colNum);
     setRandNum();
+    tempTable = JSON.parse(JSON.stringify(table));
 }
 
 
@@ -85,9 +88,9 @@ function draw() {
             rect(i * (elementXlenght + space) - (elementXlenght - layerX), j * (elementXlenght + space) - (elementXlenght - layerY) , elementXlenght, elementXlenght);   
         }
     }
-    playAnimation(makeAnimate,"move");
     //playAnimation(makeAnimate,"pull");
     
+    playAnimation(makeAnimate,"move");
 
     for(let i=1; i<=rowNum; i++){       
         for(let j=1; j<=colNum; j++){
@@ -122,7 +125,7 @@ function draw() {
 
 function watchTable(){
     //This function just for debug and see table on the console
-    console.clear();
+    //console.clear();
         for(let i=0; i<4; i++){
             //for(let j=0; j<table[i].length; j++){
                 let a = (JSON.stringify(table[i], ["val"])).replace('"val":', '').replace('"val":', '').replace('"val":', '').replace('"val":', '').replace('null', '0').replace('null', '0').replace('null', '0').replace('null', '0');
@@ -137,8 +140,9 @@ function mousePressed(){
         score = 0;
         isFirstSet = true;
         elementCalculate();
-        createTable(rowNum, colNum); 
+        table = createTable(rowNum, colNum); 
         setRandNum();
+        tempTable = JSON.parse(JSON.stringify(table));
     }
 }
 
@@ -175,6 +179,7 @@ function playAnimation(animes){
                 break;
             } 
         }
+        
         if(!isDone){
             for(let z=0; z<animes.length; z++){
                 let oldPos = animes[z]["oldPosition"];
@@ -184,27 +189,45 @@ function playAnimation(animes){
                 let j = animes[z]["animeYTwo"];
                 let animeName = animes[z]["animeName"];
                 
+                let sum = animeCount / animeSpeed;    
+                
                 if(animeName == "right"){
-                    if(table[i][k]["x"] <= (oldPos + animeCount)){
-                        table[i][k]["x"] += 20;
+                    if(table[i][k]["x"] < (oldPos + animeCount)){
+                        if(table[i][k]["x"] + sum > (oldPos + animeCount)){
+                            table[i][k]["x"] = oldPos + animeCount;
+                        } else {
+                            table[i][k]["x"] += sum;
+                        }
                     } else {
                         makeAnimate[z]["isDone"] = true;
                     }
                 } else if(animeName == "left"){
-                    if(table[i][k]["x"] >= (oldPos - animeCount)){
-                        table[i][k]["x"] -= 20;
+                    if(table[i][k]["x"] > (oldPos - animeCount)){
+                        if(table[i][k]["x"] - sum < (oldPos - animeCount)){
+                            table[i][k]["x"] = oldPos - animeCount;
+                        } else {
+                            table[i][k]["x"] -= sum;
+                        }
                     } else {
                         makeAnimate[z]["isDone"] = true;
                     }
                 } else if(animeName == "up"){
-                    if(table[k][i]["y"] >= (oldPos - animeCount)){
-                        table[k][i]["y"] -= 20;
+                    if(table[k][i]["y"] > (oldPos - animeCount)){
+                        if(table[k][i]["y"] - sum < (oldPos - animeCount)){
+                            table[k][i]["y"] = oldPos - animeCount;
+                        } else {
+                            table[k][i]["y"] -= sum;
+                        }
                     } else {
                         makeAnimate[z]["isDone"] = true;
                     }
                 } else if(animeName == "down"){
-                    if(table[k][i]["y"] <= (oldPos + animeCount)){
-                        table[k][i]["y"] += 20;
+                    if(table[k][i]["y"] < (oldPos + animeCount)){
+                        if(table[k][i]["y"] + sum > (oldPos + animeCount)){
+                            table[k][i]["y"] = oldPos + animeCount;
+                        } else {
+                            table[k][i]["y"] += sum;
+                        }
                     } else {
                         makeAnimate[z]["isDone"] = true;
                     }
@@ -213,57 +236,22 @@ function playAnimation(animes){
             }
         } else {
             for(let z=0; z<animes.length; z++){
-                let oldPos = animes[z]["oldPosition"];
-                let animeCount = animes[z]["animeCount"];
-                let i = animes[z]["animeX"];
-                let k = animes[z]["animeY"];
-                let j = animes[z]["animeYTwo"];
-                let animeName = animes[z]["animeName"];
-                //console.log(oldPos);
-                aName = animeName;
-                
-                if(animeName == "right"){
-                    table[i][j]["val"] = table[i][j]["val"] * 2;
-                    score += table[i][j]["val"];
-                    table[i][k]["val"] = null;
-                    table[i][k]["x"] = oldPos;                    
-                } else if(animeName == "left"){
-                    table[i][j]["val"] = table[i][j]["val"] * 2;
-                    score += table[i][j]["val"];
-                    table[i][k]["val"] = null;
-                    table[i][k]["x"] = oldPos; 
-                } else if(animeName == "up"){
-                    table[j][i]["val"] = table[j][i]["val"] * 2;
-                    score += table[j][i]["val"];
-                    table[k][i]["val"] = null;
-                    table[k][i]["y"] = oldPos; 
-                } else if(animeName == "down"){
-                    table[j][i]["val"] = table[j][i]["val"] * 2;
-                    score += table[j][i]["val"];
-                    table[k][i]["val"] = null;
-                    table[k][i]["y"] = oldPos; 
-                    
-                }
-                
                 makeAnimate.splice(z, 1);
                 z--;
             }
-            if(aName == "right"){
-                pullRight();    
-            } else if(aName == "left"){
-                pullLeft();
-            } else if(aName == "up"){
-                pullUp();
-            } else if(aName == "down"){
-                pullDown();
-            }
             
-            normalizeTable();
+            table = JSON.parse(JSON.stringify(tempTable));
+            if(table != oldTable){
+                findIndexNum(null);
+                tempTable = table.slice(0);
+            }
+            table = JSON.parse(JSON.stringify(tempTable));
         }
         
         
     
     } else {
+        
         isMoving = false;
         isPull = true;
         
@@ -273,25 +261,54 @@ function playAnimation(animes){
 
 
 function moveRight(){
+    isMoving = true;
     for(let i=0; i<rowNum; i++){
+        
         for(let j = colNum-1; j>=0; j--){
-            if(table[i][j]["val"] != null){
-                let num = table[i][j]["val"];
+            
+            if(tempTable[i][j]["val"] != null){
+                console.log(tempTable);
+                let num = tempTable[i][j]["val"];
+                let say = j;
+                for(let z=j+1; z<colNum; z++){
+                    if(tempTable[i][z]["val"] == null){
+                        say++;
+                        oldTable = [];
+                    } else {
+                        break;
+                    }
+                }
+                
+                if(say-j > 0){
+                    let tmp = tempTable[i][j]["val"];
+                    tempTable[i][say]["val"] = tmp;
+                    tempTable[i][j]["val"] = null;
+                    console.log(tmp);
+                    console.log("Say eksi J : " + (say-j));
+                    let obj = {
+                        oldPosition : tempTable[i][j]["x"],
+                        animeCount : (elementXlenght + space) * (say-j),
+                        animeX : i,
+                        animeY : j,
+                        animeYTwo : say,
+                        animeName : "right",
+                        isDone : false
+                    };
+                    makeAnimate.push(obj);
+                    j = say;
+                }
+                
+                num = tempTable[i][j]["val"];
                 for(let k=j-1; k>=0; k--){
-                    if(k !=j && table[i][k]["val"] != null){               
-                        if(table[i][k]["val"] == num){
+                    if(k !=j && tempTable[i][k]["val"] != null){               
+                        if(tempTable[i][k]["val"] == num){
+
+                            tempTable[i][j]["val"] = num * 2;
+                            score += (num*2);
+                            tempTable[i][k]["val"] = null;
                             //For animation
-                            /*
-                            makeAnimate["oldPosition"] = table[i][k]["x"];
-                            makeAnimate["animeCount"] = (elementXlenght + space) * (j-k);
-                            makeAnimate["animeX"] = i;
-                            makeAnimate["animeY"] = k;
-                            makeAnimate["animeYTwo"] = j;
-                            makeAnimate["animeName"] = "right";
-                            */
-                            
                             let obj = {
-                                oldPosition : table[i][k]["x"],
+                                oldPosition : tempTable[i][k]["x"],
                                 animeCount : (elementXlenght + space) * (j-k),
                                 animeX : i,
                                 animeY : k,
@@ -299,45 +316,89 @@ function moveRight(){
                                 animeName : "right",
                                 isDone : false
                             };
-                            
+
                             makeAnimate.push(obj);
                             isPull = false;
-                            
-                            /*
-                            table[i][j]["val"] = num * 2;
-                            table[i][k]["val"] = null;
-                            */
-                            j = k-1;
-                            
+                            j = k;
                         }                
-                        break;
-                        
+                            break;
                     }
                 }
-                
             }
         }
     }
-    isMoving = true;
-    if(isPull){
-        pullRight();
+}
+
+
+function debugTable(tab){
+    let say = 0;
+    for(let i=0; i<rowNum; i++){
+        for(let j=0; j<colNum; j++){
+            if(tab[say] != 0){
+                
+            tempTable[i][j]["val"] = tab[say];
+            table[i][j]["val"] = tab[say];
+            } else {
+                tempTable[i][j]["val"] = null;
+                table[i][j]["val"] = null;
+            }
+            
+            say++;
+        }
     }
-    
 }
 
 function moveLeft(){
+    isMoving = true;
     for(let i=0; i<rowNum; i++){
         for(let j=0; j<colNum; j++){
-            if(table[i][j]["val"] != null){
-                let num = table[i][j]["val"];
+            if(tempTable[i][j]["val"] != null){
+                
+                console.log(tempTable);
+                let num = tempTable[i][j]["val"];
+                
+                let say = j;
+                for(let z=j-1; z>-1; z--){
+                    if(tempTable[i][z]["val"] == null){
+                        say--;
+                        oldTable = [];
+                    } else {
+                        break;
+                    }
+                }
+                
+                if(j-say > 0){
+                    let tmp = tempTable[i][j]["val"];
+                    tempTable[i][say]["val"] = tmp;
+                    tempTable[i][j]["val"] = null;
+                    console.log(tmp);
+                    console.log("Say eksi J : " + (j-say));
+                    let obj = {
+                        oldPosition : tempTable[i][j]["x"],
+                        animeCount : (elementXlenght + space) * (j-say),
+                        animeX : i,
+                        animeY : j,
+                        animeYTwo : say,
+                        animeName : "left",
+                        isDone : false
+                    };
+                    makeAnimate.push(obj);
+                    j = say;
+                }
+                
+                
+                
+                
+                num = tempTable[i][j]["val"];
                 for(let k=j+1; k<colNum; k++){
-                    if(k !=j && table[i][k]["val"] != null){
-                        if(table[i][k]["val"] == num && k != j){
-                            //table[i][j]["val"] = num * 2;
-                            //table[i][k]["val"] = null;
+                    if(k !=j && tempTable[i][k]["val"] != null){
+                        if(tempTable[i][k]["val"] == num && k != j){
+                            tempTable[i][j]["val"] = num * 2;
+                            score += (num*2);
+                            tempTable[i][k]["val"] = null;
                             
                             let obj = {
-                                oldPosition : table[i][k]["x"],
+                                oldPosition : tempTable[i][k]["x"],
                                 animeCount : (elementXlenght + space) * (k-j),
                                 animeX : i,
                                 animeY : k,
@@ -345,12 +406,9 @@ function moveLeft(){
                                 animeName : "left",
                                 isDone : false
                             };
-                            
                             makeAnimate.push(obj);
                             isPull = false;
-                            
-                            j = k+1;
-                        
+                            j = k;
                         }
                         break;
                     }
@@ -358,26 +416,54 @@ function moveLeft(){
             }
         }
     }
-    isMoving = true;
-    if(isPull){
-        pullLeft();
-    }
-    //findIndexNum();
 }
 
 function moveUp(){
+    isMoving = true; 
     for(let i=0; i<colNum; i++){
         for(let j=0; j<rowNum; j++){
-            if(table[j][i]["val"] != null){
-                let num = table[j][i]["val"];
+            if(tempTable[j][i]["val"] != null){
+                
+                let num = tempTable[j][i]["val"];
+                
+                let say = j;
+                for(let z=j-1; z>-1; z--){
+                    if(tempTable[z][i]["val"] == null){
+                        say--;
+                        oldTable = [];
+                    } else {
+                        break;
+                    }
+                }
+                
+                if(j-say > 0){
+                    let tmp = tempTable[j][i]["val"];
+                    tempTable[say][i]["val"] = tmp;
+                    tempTable[j][i]["val"] = null;
+                    console.log(tmp);
+                    console.log("Say eksi J : " + (j-say));
+                    let obj = {
+                        oldPosition : tempTable[j][i]["y"],
+                        animeCount : (elementXlenght + space) * (j-say),
+                        animeX : i,
+                        animeY : j,
+                        animeYTwo : say,
+                        animeName : "up",
+                        isDone : false
+                    };
+                    makeAnimate.push(obj);
+                    j = say;
+                }
+                
+                num = tempTable[j][i]["val"];
                 for(let k=j+1; k<rowNum; k++){
-                    if(k != j && table[k][i]["val"] != null){
-                        if(table[k][i]["val"] == num){
-                            //table[j][i]["val"] = num * 2;
-                            //table[k][i]["val"] = null;
-                            
+                    if(k != j && tempTable[k][i]["val"] != null){
+                        if(tempTable[k][i]["val"] == num){
+                            tempTable[j][i]["val"] = num * 2;
+                            score += (num*2);
+                            tempTable[k][i]["val"] = null;
                             let obj = {
-                                oldPosition : table[k][i]["y"],
+                                oldPosition : tempTable[k][i]["y"],
                                 animeCount : (elementXlenght + space) * (k-j),
                                 animeX : i,
                                 animeY : k,
@@ -385,12 +471,8 @@ function moveUp(){
                                 animeName : "up",
                                 isDone : false
                             };
-                            
                             makeAnimate.push(obj);
-                            isPull = false;
-                            
-                            j = k+1;
-                            
+                            j = k;
                         }
                         break;
                     }
@@ -398,26 +480,57 @@ function moveUp(){
             }
         }
     }
-    isMoving = true;
-    if(isPull){
-        pullUp();
-    }
-    //findIndexNum();   
 }
 
 function moveDown(){
-    for(let i=0; i<colNum; i++){
-        for(let j=rowNum-1; j>=0; j--){
-            if(table[j][i]["val"] != null){
-                let num = table[j][i]["val"];
+    isMoving = true; 
+    for(let i=0; i<rowNum; i++){
+        for(let j=colNum-1; j>=0; j--){
+            if(tempTable[j][i]["val"] != null){
+                
+                console.log(tempTable);
+                let num = tempTable[j][i]["val"];
+                let say = j;
+                for(let z=j+1; z<colNum; z++){
+                    if(tempTable[z][i]["val"] == null){
+                        say++;
+                        oldTable = [];
+                    } else {
+                        break;
+                    }
+                }
+                
+                if(say-j > 0){
+                    let tmp = tempTable[j][i]["val"];
+                    tempTable[say][i]["val"] = tmp;
+                    tempTable[j][i]["val"] = null;
+                    console.log(tmp);
+                    console.log("Say eksi J : " + (say-j));
+                    let obj = {
+                        oldPosition : tempTable[j][i]["y"],
+                        animeCount : (elementXlenght + space) * (say-j),
+                        animeX : i,
+                        animeY : j,
+                        animeYTwo : say,
+                        animeName : "down",
+                        isDone : false
+                    };
+                    makeAnimate.push(obj);
+                    j = say;
+                }
+                
+                
+                
+                
+                num = tempTable[j][i]["val"];
                 for(let k=j-1; k>=0; k--){
-                    if(k != j && table[k][i]["val"] != null){
-                        if(table[k][i]["val"] == num && k != j){
-                            //table[j][i]["val"] = num * 2;
-                            //table[k][i]["val"] = null;
-                            
+                    if(k != j && tempTable[k][i]["val"] != null){
+                        if(tempTable[k][i]["val"] == num){
+                            tempTable[j][i]["val"] = num * 2;
+                            score += (num*2);
+                            tempTable[k][i]["val"] = null;
                             let obj = {
-                                oldPosition : table[k][i]["y"],
+                                oldPosition : tempTable[k][i]["y"],
                                 animeCount : (elementXlenght + space) * (j-k),
                                 animeX : i,
                                 animeY : k,
@@ -425,64 +538,51 @@ function moveDown(){
                                 animeName : "down",
                                 isDone : false
                             };
-                            
                             makeAnimate.push(obj);
-                            isPull = false;
                             
-                            j = k-1;
-                            
+                            j = k;
                         }
-                        break;
+                            break;
                     }
                 }
             }
         }
     }
-    isMoving = true;
-    if(isPull){
-        pullDown();
-    }
-    //findIndexNum();   
 }
 
 
 
 
-function pullRight(){
-    for(let i=0; i<rowNum; i++){
-        for(let j=colNum-1; j>=0; j--){
-            if(table[i][j]["val"] != null){
+function pullRight(i,j){
                 let num = table[i][j]["val"];
-                let count = 0;
-                for(let k=j; k<colNum; k++){
-                    if(table[i][k]["val"] == null){
-                        table[i][k]["val"] = num;
-                        table[i][k-1]["val"] = null;
-                        /*
-                        let obj = {
-                            oldPosition : table[i][k]["x"],
-                            animeCount : (elementXlenght + space) * (j-k),
-                            animeX : i,
-                            animeY : k,
-                            animeYTwo : j,
-                            animeName : "right",
-                            isDone : false
-                        };
-
-                        pullAnimate.push(obj);
-                        */
-                        
+                let say = j;
+                for(let z=j+1; z<colNum; z++){
+                    if(table[i][z]["val"] == null){
+                        say++;
                         oldTable = [];
                         
-                        count++;
-                        
+                    } else {
+                        //break;
                     }
                 }
-            }
-        }
-    }
+                /*
+                table[i][j]["val"] = null;
+                table[i][say]["val"] = num;*/
+                
+                            let obj = {
+                                oldPosition : table[i][j]["x"],
+                                animeCount : (elementXlenght + space) * (say-j),
+                                animeX : i,
+                                animeY : j,
+                                animeYTwo : say,
+                                animeName : "pullright",
+                                isDone : false
+                            };
+                            
+                            makeAnimate.push(obj);
+                            //isPull = false;
     if(table != oldTable){
-        findIndexNum(null);
+        //findIndexNum(null);
     }
 }
 
@@ -620,27 +720,21 @@ function getRandomNum(){
     } else {
         return 4;
     }
-    
-    /*
-    if(rand == 2 || rand == 4){
-        return rand;
-    } else {
-        return getRandomNum();
-    }
-    */
 }
 
 function createTable(rowNum, colNum){
+    let tab = [];
     for(let i=0; i<colNum; i++){
-        table[i] = [];
+        tab[i] = [];
         for(let j=0; j<rowNum; j++){
-            table[i][j] = {
+            tab[i][j] = {
                 x : ((j+1) * (elementXlenght + space) - (elementXlenght - layerX)),
                 y : ((i+1) * (elementXlenght + space)  - (elementXlenght - layerY)),
                 val : null
             };
         }
     }
+    return tab;
     
 }
 
@@ -648,8 +742,8 @@ function createTable(rowNum, colNum){
 function normalizeTable(){
     for(let i=0; i<colNum; i++){
         for(let j=0; j<rowNum; j++){
-                table[i][j]["x"] = ((j+1) * (elementXlenght + space) - (elementXlenght - layerX));
-                table[i][j]["y"] = (i+1) * (elementXlenght + space)  - (elementXlenght - layerY);
+                tempTable[i][j]["x"] = ((j+1) * (elementXlenght + space) - (elementXlenght - layerX));
+                tempTable[i][j]["y"] = (i+1) * (elementXlenght + space)  - (elementXlenght - layerY);
         }
     }
     
