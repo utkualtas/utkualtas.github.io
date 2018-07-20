@@ -1,22 +1,43 @@
 let rowNum = 4;
 let colNum = 4;
-let table = [];
-let oldTable = [];
-let tempTable = [];
+let table = new Array();
+let oldTable = new Array();
+let tempTable = new Array();
 let isFirstSet = true;
+
+let cnvWidth = 800;
 
 let width = 600;
 let height = 600;
 let space = 16;
 
-let layerX = 100;
-let layerY = 150;
+let layerX = (cnvWidth - width)/2;
+let layerY = 160;
 
 let elementXlenght = 0.0;
-
-let animeSpeed = 9.0; // More less is more faster
+let sizeText = 60;
+/* ANIME EFFECT VERIABLES ---------------------------------------------------------------- */
+let animeSpeed = 6.0; // More less is more faster
 let makeAnimate = [];
 let pullAninamte = [];
+
+/* SHAKE EFFECT VERIABLES ---------------------------------------------------------------- */
+let shakeList = [];
+let shakeLimit = 26.0;
+let shakeSpeed = 10.0;
+let isShaked = true;
+let isGrow = false;
+
+/* APPEAR EFFECT VERIABLES ---------------------------------------------------------------- */
+let appearIndex = null;
+
+let a = [1,2,3];
+let b = [1,2,3];
+
+let keyStack = [];
+let keyOnline = false;
+
+
 let isMoving = false;
 
 let score = 0;
@@ -39,7 +60,7 @@ let colors = {
 
 function setup() {
     // put setup code here
-    let cnvs = createCanvas(800, 950);
+    let cnvs = createCanvas(cnvWidth, windowHeight);
     cnvs.style("display", "block");
     cnvs.style("margin", "0px auto");
     //background(0);
@@ -52,9 +73,9 @@ function setup() {
 
 function draw() {
     // put drawing code here
-    //console.log("looping");
+    console.log("looping");
 
-    //background(0);
+    background(255);
     fill("#BBADA0");
     noStroke();
     rect(layerX, layerY, width, height, 8);
@@ -64,8 +85,8 @@ function draw() {
     textSize(100);
     text("2048", 100, 110);
 
-    rect(590, 40, 110, 62);
-    rect(420, 40, 150, 62);
+    rect(590, 40, 110, 62,8);
+    rect(420, 40, 150, 62,8);
     textSize(18);
     textStyle(BOLD);
     fill("#776E65");
@@ -79,12 +100,13 @@ function draw() {
         for (let j = 1; j <= colNum; j++) {
             fill("#CDC0B4");
             noStroke();
-            rect(i * (elementXlenght + space) - (elementXlenght - layerX), j * (elementXlenght + space) - (elementXlenght - layerY), elementXlenght, elementXlenght);
+            rect(i * (elementXlenght + space) - (elementXlenght - layerX), j * (elementXlenght + space) - (elementXlenght - layerY), elementXlenght, elementXlenght,8);
         }
     }
     //playAnimation(makeAnimate,"pull");
 
-    playAnimation(makeAnimate, "move");
+    playAnimation(makeAnimate);
+    appearNum();
 
     for (let i = 1; i <= rowNum; i++) {
         for (let j = 1; j <= colNum; j++) {
@@ -96,8 +118,8 @@ function draw() {
                     fill(colors[table[i - 1][j - 1]["val"].toString()]);
                 }
                 noStroke();
-                rect(table[i - 1][j - 1]["x"], table[i - 1][j - 1]["y"], elementXlenght, elementXlenght);
-                textSize(52);
+                rect(table[i - 1][j - 1]["x"], table[i - 1][j - 1]["y"], table[i-1][j-1]["lengthX"], table[i-1][j-1]["lengthY"], 8);
+                textSize(table[i-1][j-1]["textSize"]);
                 textStyle(BOLD);
                 if (table[i - 1][j - 1]["val"] > 4) {
                     fill("#F9F6F2");
@@ -105,7 +127,7 @@ function draw() {
                     fill("#776E65");
                 }
                 let numText = table[i - 1][j - 1]["val"].toString();
-                text(numText, table[i - 1][j - 1]["x"] + elementXlenght / 2 - textWidth(numText) / 2, table[i - 1][j - 1]["y"] + elementXlenght / 2 + textDescent(numText));
+                text(numText, table[i - 1][j - 1]["x"] + table[i-1][j-1]["lengthX"] / 2 - textWidth(numText) / 2, table[i - 1][j - 1]["y"] + table[i-1][j-1]["lengthY"] / 2 + textDescent(numText));
                 //say++;
             }
         }
@@ -139,33 +161,48 @@ function mousePressed() {
 }
 
 function keyPressed() {
-    if (keyCode === LEFT_ARROW && isMoving == false) {
-        oldTable = table;
-        moveLeft();
-        loop();
+    if (keyCode === LEFT_ARROW) {
+        //oldTable = table;
+        //moveLeft();
+        keyStack.push("left");
+        keyOnline = true;
+        redraw();
+        //startStack();
+        //loop();
         //watchTable();
-    } else if (keyCode === RIGHT_ARROW && isMoving == false) {
-        oldTable = table;
-        moveRight();
-        loop();
+    } else if (keyCode === RIGHT_ARROW) {
+        //oldTable = table;
+        //moveRight();
+        keyStack.push("right");
+        keyOnline = true;
+        redraw();
+        //startStack();
+        //loop();
         //watchTable();
-    } else if (keyCode === UP_ARROW && isMoving == false) {
-        oldTable = table;
-        moveUp();
-        loop();
+    } else if (keyCode === UP_ARROW) {
+        //oldTable = table;
+        //moveUp();
+        keyStack.push("up");
+        keyOnline = true;
+        redraw();
+        //loop();
         //watchTable();
-    } else if (keyCode === DOWN_ARROW && isMoving == false) {
-        oldTable = table;
-        moveDown();
-        loop();
+    } else if (keyCode === DOWN_ARROW) {
+        //oldTable = table;
+        //moveDown();
+        keyStack.push("down");
+        keyOnline = true;
+        redraw();
+        //loop();
         //watchTable();
     }
+    console.log(keyStack);
 }
 
 function playAnimation(animes) {
     let isDone = true;
     let aName = null;
-    oldTable = [];
+    //oldTable = [];
     if (animes.length != 0) {
         for (let i = 0; i < animes.length; i++) {
             if (animes[i]["isDone"] == false) {
@@ -240,19 +277,125 @@ function playAnimation(animes) {
                 tempTable = table.slice(0);
             }
             table = JSON.parse(JSON.stringify(tempTable));
+            keyStack.splice(0,1);
         }
+        
 
 
 
     } else {
-        isMoving = false;
-        noLoop();
+        
+        if(shakeList.length > 0){
+            isShaked = false;
+            for(let i=0; i<shakeList.length; i++){
+                let x = shakeList[i]["i"];
+                let y = shakeList[i]["j"];
+                if(!isGrow && table[x][y]["lengthX"] < elementXlenght + shakeLimit){
+                    //console.log("table = " + table[x][y]["lengthX"] );
+                    //console.log("deger = " + (elementXlenght + shakeLimit));
+                    isGrow = false;
+                } else {
+                    isGrow = true;
+                }
+                if(!isGrow){
+                    table[x][y]["x"] -= shakeSpeed/2;
+                    table[x][y]["y"] -= shakeSpeed/2;
+                    table[x][y]["lengthX"] += shakeSpeed;
+                    table[x][y]["lengthY"] += shakeSpeed;
+                    table[x][y]["textSize"] += shakeSpeed;
+                    tempTable[x][y]["x"] -= shakeSpeed/2;
+                    tempTable[x][y]["y"] -= shakeSpeed/2;
+                    tempTable[x][y]["lengthX"] += shakeSpeed;
+                    tempTable[x][y]["lengthY"] += shakeSpeed;
+                    tempTable[x][y]["textSize"] += shakeSpeed;
+                } else {
+                    if(table[x][y]["lengthX"] > elementXlenght){
+                        table[x][y]["x"] += shakeSpeed/2;
+                        table[x][y]["y"] += shakeSpeed/2;
+                        table[x][y]["lengthX"] -= shakeSpeed;
+                        table[x][y]["lengthY"] -= shakeSpeed;
+                        table[x][y]["textSize"] -= shakeSpeed;
+                        tempTable[x][y]["x"] += shakeSpeed/2;
+                        tempTable[x][y]["y"] += shakeSpeed/2;
+                        tempTable[x][y]["lengthX"] -= shakeSpeed;
+                        tempTable[x][y]["lengthY"] -= shakeSpeed;
+                        tempTable[x][y]["textSize"] -= shakeSpeed;
+                        
+                    } else {
+                        isGrow = false;
+                        isShaked = true;
+                        shakeList = [];
+                    }
+                }
+            }
+        }
+        if(keyStack.length > 0){
+           keyOnline = true;
+        } else {
+            keyOnline = false;
+        }
+        
+        if(isShaked && appearIndex == null){
+            isMoving = false;
+            if(!keyOnline){
+                noLoop();        
+            }
+        }
+        
+        if(!isMoving && keyStack.length > 0){
+            let name = keyStack[0];
+            if(name === "right"){
+                //oldtable = table.slice(0);
+                //oldtable = tempTable;
+                oldTable = JSON.parse(JSON.stringify(table));
+                moveRight();
+            } else if(name === "left"){
+                //oldtable = table.slice(0);
+                //oldtable = tempTable;
+                oldTable = JSON.parse(JSON.stringify(table));
+                moveLeft();
+            } else if(name === "up"){
+                //oldtable = table.slice(0);
+                //oldtable = tempTable;
+                oldTable = JSON.parse(JSON.stringify(table));
+                moveUp();
+            } else if(name === "down"){
+                //oldtable = table.slice(0);
+                //oldtable = tempTable;
+                oldTable = JSON.parse(JSON.stringify(table));
+                moveDown();
+            }
+            if(JSON.stringify(table)==JSON.stringify(oldTable)){
+                keyStack.splice(0,1);
+            }
+            loop();
+        }
+        
+        
     }
 
 }
 
+function startStack(){
+    if(!isMoving && keyStack.length > 0){
+            let name = keyStack[0];
+            if(name === "right"){
+                moveRight();
+            } else if(name === "left"){
+                moveLeft();
+            } else if(name === "up"){
+                moveUp();
+            } else if(name === "down"){
+                moveDown();
+            }
+            loop();
+        }
+}
+
 
 function moveRight() {
+    //oldTable = table;
+    oldTable = table.slice(0);
     isMoving = true;
     for (let i = 0; i < rowNum; i++) {
 
@@ -305,8 +448,13 @@ function moveRight() {
                                 animeName: "right",
                                 isDone: false
                             };
-
                             makeAnimate.push(obj);
+                            oldTable = [];
+                            shakeList.push({
+                                i : i,
+                                j : j
+                            });
+                            
                             j = k;
                         }
                         break;
@@ -337,6 +485,8 @@ function debugTable(tab) {  //For set table usage: debugTable([0,0,0,0 ,2,0,0,0 
 }
 
 function moveLeft() {
+    //oldTable = table;
+    oldTable = table.slice(0);
     isMoving = true;
     for (let i = 0; i < rowNum; i++) {
         for (let j = 0; j < colNum; j++) {
@@ -388,6 +538,11 @@ function moveLeft() {
                                 isDone: false
                             };
                             makeAnimate.push(obj);
+                            oldTable = [];
+                            shakeList.push({
+                                i : i,
+                                j : j
+                            });
                             j = k;
                         }
                         break;
@@ -399,6 +554,8 @@ function moveLeft() {
 }
 
 function moveUp() {
+    //oldTable = table;
+    oldTable = table.slice();
     isMoving = true;
     for (let i = 0; i < colNum; i++) {
         for (let j = 0; j < rowNum; j++) {
@@ -450,6 +607,11 @@ function moveUp() {
                                 isDone: false
                             };
                             makeAnimate.push(obj);
+                            oldTable = [];
+                            shakeList.push({
+                                i : j,
+                                j : i
+                            });
                             j = k;
                         }
                         break;
@@ -461,6 +623,8 @@ function moveUp() {
 }
 
 function moveDown() {
+    //oldTable = table;
+    oldTable = table.slice();
     isMoving = true;
     for (let i = 0; i < rowNum; i++) {
         for (let j = colNum - 1; j >= 0; j--) {
@@ -511,7 +675,11 @@ function moveDown() {
                                 isDone: false
                             };
                             makeAnimate.push(obj);
-
+                            oldTable = [];
+                            shakeList.push({
+                                i : j,
+                                j : i
+                            });
                             j = k;
                         }
                         break;
@@ -524,6 +692,7 @@ function moveDown() {
 
 function elementCalculate() {
     elementXlenght = (width - space * (rowNum + 1)) / rowNum;
+	sizeText = elementXlenght / 2;
 }
 
 function setRandNum() {
@@ -546,9 +715,45 @@ function findIndexNum(direkt) {
         } else {
             table[x][y]["val"] = 2;
         }
+        if(!isFirstSet){
+            
+        table[x][y]["x"] += elementXlenght/2;  
+        table[x][y]["y"] += elementXlenght/2;
+        table[x][y]["lengthX"] = 0;
+        table[x][y]["lengthY"] = 0;
+        table[x][y]["textSize"] = 0;
+        
+        appearIndex = {
+            i : x,
+            j : y
+        };
+        }
     } else {
         findIndexNum(direkt);
     }
+}
+
+function appearNum(){
+    if(appearIndex != null){
+            let x = appearIndex["i"];
+            let y = appearIndex["j"];
+            if(table[x][y]["lengthX"] < elementXlenght){
+                speed = 26.0;
+                table[x][y]["x"] -= speed/2;
+                table[x][y]["y"] -= speed/2;
+                table[x][y]["lengthX"] += speed;
+                table[x][y]["lengthY"] += speed;
+                table[x][y]["textSize"] += sizeText / (elementXlenght/speed);
+                tempTable[x][y]["x"] -= speed/2;
+                tempTable[x][y]["y"] -= speed/2;
+                tempTable[x][y]["lengthX"] += speed;
+                tempTable[x][y]["lengthY"] += speed;
+                tempTable[x][y]["textSize"] += sizeText / (elementXlenght/speed);
+                
+            } else {
+                appearIndex = null;
+            }
+        }
 }
 
 function getRandomNum() {
@@ -560,6 +765,7 @@ function getRandomNum() {
     }
 }
 
+
 function createTable(rowNum, colNum) {
     let tab = [];
     for (let i = 0; i < colNum; i++) {
@@ -568,6 +774,9 @@ function createTable(rowNum, colNum) {
             tab[i][j] = {
                 x: ((j + 1) * (elementXlenght + space) - (elementXlenght - layerX)),
                 y: ((i + 1) * (elementXlenght + space) - (elementXlenght - layerY)),
+                lengthX : elementXlenght,
+                lengthY : elementXlenght,
+                textSize : sizeText,
                 val: null
             };
         }
