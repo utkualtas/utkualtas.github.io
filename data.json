@@ -1,0 +1,47 @@
+[
+  {
+    "id" : 0,
+    "name" : "Utku",
+    "surname" : "Altaş",
+    "phone-number" : "05382891402",
+    "username" : "xfaben",
+    "password" : "123456789"
+  },
+
+  {
+    "id" :1,
+    "name" : "Çağatay",
+    "surname" : "Aktaş",
+    "phone-number" : "05382891402",
+    "username" : "cagatayaktasss",
+    "password" : "Cagatay45"
+  },
+
+  {
+    "id" : 2,
+    "name" : "Mert",
+    "surname" : "Katmerci",
+    "phone-number" : "05382891402",
+    "username" : "mettopp",
+    "password" : "123654789"
+  },
+
+  {
+    "id" : 3,
+    "name" : "Ayşe",
+    "surname" : "Gürlüoğlu",
+    "phone-number" : "05382891402",
+    "username" : "tippoz",
+    "password" : "s1kk000"
+  },
+
+  {
+    "id" : 4,
+    "name" : "Burak",
+    "surname" : "Karam",
+    "phone-number" : "05382891402",
+    "username" : "ikoolle",
+    "password" : "456789123"
+  }
+  
+]
